@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Application (full)</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: #eef2f7;
+        margin: 0;
+        padding: 32px 20px 64px;
+        min-height: 100vh;
+        color: #111827;
+      }
+      .container {
+        max-width: 760px;
+        width: 100%;
+        margin: 0 auto;
+        background: #fff;
+        padding: 40px 44px 48px;
+        border-radius: 16px;
+        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+        border: 1px solid #e5e7eb;
+      }
+      h1 { margin: 0 0 8px; font-size: 30px; font-weight: 700; }
+      p.hint { margin: 0 0 28px; color: #6b7280; font-size: 15px; line-height: 1.6; }
+      h2 {
+        margin: 36px 0 8px;
+        font-size: 18px;
+        color: #1d4ed8;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .section-note { margin: 0 0 16px; color: #6b7280; font-size: 14px; }
+      label {
+        display: block;
+        font-weight: 700;
+        margin: 20px 0 8px;
+        color: #1f2937;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+      input, select, textarea, .dropdown-toggle {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        font-size: 16px;
+        font-family: inherit;
+        background: #f9fafb;
+      }
+      input:focus, select:focus, textarea:focus, .dropdown-toggle:focus {
+        outline: none;
+        border-color: #2563eb;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+      }
+      textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
+      .row { display: flex; gap: 16px; }
+      .row > div { flex: 1; min-width: 0; }
+      .field-error { color: #b91c1c; font-size: 13px; margin-top: 6px; display: none; }
+      .invalid { border-color: #ef4444 !important; }
+      .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .choice {
+        border: 2px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 14px 12px;
+        font-size: 15px;
+        font-weight: 650;
+        cursor: pointer;
+        text-align: center;
+      }
+      .choice.selected, .chip.selected, .radio-card input:checked + span {
+        border-color: #2563eb;
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+      .radio-row { display: flex; gap: 10px; flex-wrap: wrap; }
+      .radio-card { flex: 1; min-width: 120px; }
+      .radio-card input { display: none; }
+      .radio-card span {
+        display: block;
+        border: 2px solid #e5e7eb;
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 14px 12px;
+        text-align: center;
+        font-weight: 650;
+        cursor: pointer;
+      }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+      .chip {
+        border: 2px solid #e5e7eb;
+        background: #fff;
+        border-radius: 999px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .help {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        margin-left: 8px;
+        border-radius: 50%;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-weight: 800;
+        cursor: default;
+        vertical-align: middle;
+      }
+      #auth_tooltip {
+        display: none;
+        margin-top: 8px;
+        padding: 10px 12px;
+        background: #111827;
+        color: #fff;
+        border-radius: 8px;
+        font-size: 13px;
+        max-width: 420px;
+      }
+      #visa_fields { display: none; padding: 12px; background: #f8fafc; border-radius: 12px; }
+      .dropdown { position: relative; }
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 5;
+        margin: 6px 0 0;
+        padding: 6px;
+        list-style: none;
+        background: #fff;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        max-height: 220px;
+        overflow: auto;
+      }
+      .dropdown.open .dropdown-menu { display: block; }
+      .dropdown-menu li {
+        padding: 12px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .dropdown-menu li:hover { background: #eff6ff; }
+      .drop-zone {
+        margin-top: 10px;
+        border: 2px dashed #93c5fd;
+        border-radius: 12px;
+        padding: 22px;
+        text-align: center;
+        background: #f8fbff;
+        font-weight: 600;
+        color: #1d4ed8;
+      }
+      .drop-zone.dragover { background: #dbeafe; }
+      .resume-token {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 10px 14px;
+        background: #111827;
+        color: #fff;
+        border-radius: 8px;
+        cursor: grab;
+        font-size: 13px;
+      }
+      .checkbox {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 24px;
+        padding: 16px;
+        background: #f3f4f6;
+        border-radius: 12px;
+      }
+      .checkbox input[type="checkbox"] { width: 22px; height: 22px; accent-color: #2563eb; }
+      .checkbox label { margin: 0; font-weight: 500; text-transform: none; letter-spacing: normal; color: #374151; font-size: 14px; }
+      .primary, .secondary {
+        margin-top: 28px;
+        width: 100%;
+        border: none;
+        padding: 16px 24px;
+        font-weight: 700;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .primary { background: #2563eb; color: #fff; }
+      .secondary { background: #e5e7eb; color: #111827; margin-top: 10px; }
+      .success {
+        margin-top: 24px;
+        padding: 20px 24px;
+        background: #f0fdf4;
+        color: #065f46;
+        border: 2px solid #86efac;
+        border-radius: 12px;
+        display: none;
+      }
+      .success strong { display: block; font-size: 18px; margin-bottom: 12px; }
+      .success div { padding: 6px 0; border-bottom: 1px solid rgba(6, 95, 70, 0.1); font-size: 14px; }
+      .success div:last-child { border-bottom: none; }
+      .note { font-size: 13px; color: #9ca3af; margin-top: 8px; }
+      .overlay, .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(17, 24, 39, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        padding: 20px;
+      }
+      .overlay.show, .modal-backdrop.show { display: flex; }
+      .modal, .spinner-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 28px;
+        max-width: 420px;
+        width: 100%;
+      }
+      #upload_status { margin-top: 8px; font-size: 13px; color: #1d4ed8; min-height: 18px; }
+      input[type="file"] { padding: 10px; background: #fff; }
+      @media (max-width: 640px) {
+        .container { padding: 28px 18px; }
+        .row, .cards { flex-direction: column; grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Job Application Form</h1>
+      <p class="hint">Full demo form for Computer Use: hover, scroll, conditionals, drag-and-drop, and a confirm step. Core apply fields are still at the top.</p>
+
+      <form id="job-form">
+        <h2>Core details</h2>
+        <p class="section-note">These are the original application fields. Filling them is enough to apply.</p>
+
+        <label for="full_name">Full Name</label>
+        <input id="full_name" name="full_name" type="text" placeholder="Jane Doe" autocomplete="name" />
+        <div class="field-error" id="err_full_name">Enter your full name.</div>
+
+        <div class="row">
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="jane@example.com" autocomplete="email" />
+            <div class="field-error" id="err_email">Enter a valid email.</div>
+          </div>
+          <div>
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" placeholder="+1 555 123 4567" autocomplete="tel" />
+            <div class="field-error" id="err_phone">Enter a phone number.</div>
+          </div>
+        </div>
+
+        <label>Position</label>
+        <input type="hidden" id="position" name="position" value="" />
+        <div class="cards" id="position_cards">
+          <button type="button" class="choice" data-position="Software Engineer">Software Engineer</button>
+          <button type="button" class="choice" data-position="Data Scientist">Data Scientist</button>
+          <button type="button" class="choice" data-position="Product Manager">Product Manager</button>
+          <button type="button" class="choice" data-position="Designer">Designer</button>
+        </div>
+        <div class="field-error" id="err_position">Choose a position.</div>
+
+        <label for="cover_letter">Cover Letter</label>
+        <textarea id="cover_letter" name="cover_letter" placeholder="A short note about you..."></textarea>
+
+        <label for="resume">Resume (PDF)</label>
+        <input id="resume" name="resume" type="file" accept="application/pdf" />
+        <div class="drop-zone" id="drop_zone">Drop a PDF here, or click to browse. You can also drag the sample file token onto this box.</div>
+        <div class="resume-token" id="resume_token" draggable="true">sample_resume.pdf</div>
+        <div class="note" id="resume_note">No file selected.</div>
+        <div id="upload_status"></div>
+
+        <div class="checkbox">
+          <input type="checkbox" id="consent" name="consent" />
+          <label for="consent">I agree to the processing of my personal data.</label>
+        </div>
+        <div class="field-error" id="err_consent">Consent is required.</div>
+
+        <h2>More about you</h2>
+        <p class="section-note">Optional extras for a fuller Computer Use demo: hover, scroll, conditionals, and drag-and-drop.</p>
+
+        <div class="row">
+          <div>
+            <label for="dob">Date of birth</label>
+            <input id="dob" name="dob" type="date" />
+          </div>
+          <div>
+            <label>Country</label>
+            <div class="dropdown" id="country_dropdown">
+              <button type="button" class="dropdown-toggle" id="country_toggle">Select a country</button>
+              <ul class="dropdown-menu" id="country_menu">
+                <li data-value="India">India</li>
+                <li data-value="United States">United States</li>
+                <li data-value="United Kingdom">United Kingdom</li>
+                <li data-value="Canada">Canada</li>
+                <li data-value="Germany">Germany</li>
+              </ul>
+              <input type="hidden" id="country" name="country" value="" />
+            </div>
+          </div>
+        </div>
+
+        <label>Work type</label>
+        <div class="radio-row">
+          <label class="radio-card"><input type="radio" name="work_type" value="Full-time" /><span>Full-time</span></label>
+          <label class="radio-card"><input type="radio" name="work_type" value="Intern" /><span>Intern</span></label>
+          <label class="radio-card"><input type="radio" name="work_type" value="Contract" /><span>Contract</span></label>
+        </div>
+
+        <label>
+          Work authorization
+          <span class="help" id="auth_help" title="Tell us if you already have the right to work.">?</span>
+        </label>
+        <div id="auth_tooltip">Choose No if you will need visa sponsorship. Extra visa fields will appear.</div>
+        <div class="radio-row">
+          <label class="radio-card"><input type="radio" name="authorized" value="Yes" /><span>Yes</span></label>
+          <label class="radio-card"><input type="radio" name="authorized" value="No" /><span>No</span></label>
+        </div>
+        <div id="visa_fields">
+          <label for="visa_type">Visa type</label>
+          <input id="visa_type" name="visa_type" type="text" placeholder="H-1B, OPT, ..." />
+          <label for="visa_expiry">Visa expiry</label>
+          <input id="visa_expiry" name="visa_expiry" type="date" />
+        </div>
+
+        <label for="experience_years">Years of experience</label>
+        <input id="experience_years" name="experience_years" type="number" min="0" max="40" placeholder="2" />
+
+        <label>Skills</label>
+        <div class="chips" id="skill_chips">
+          <button type="button" class="chip" data-skill="Python">Python</button>
+          <button type="button" class="chip" data-skill="JavaScript">JavaScript</button>
+          <button type="button" class="chip" data-skill="Java">Java</button>
+          <button type="button" class="chip" data-skill="SQL">SQL</button>
+        </div>
+        <input type="hidden" id="skills" name="skills" value="" />
+
+        <label for="linkedin">LinkedIn URL</label>
+        <input id="linkedin" name="linkedin" type="url" placeholder="https://linkedin.com/in/jane-applicant" />
+
+        <button id="submit_btn" class="primary" type="submit">Submit Application</button>
+        <div id="success" class="success"></div>
+        <p class="note">Submission is intercepted and shown below. Scroll if needed to review the summary.</p>
+      </form>
+    </div>
+
+    <div class="modal-backdrop" id="confirm_modal">
+      <div class="modal">
+        <h2 style="margin-top:0;text-transform:none;letter-spacing:0;">Confirm submission</h2>
+        <p>Submit this application? You can go back and edit first.</p>
+        <button type="button" class="primary" id="confirm_yes" style="margin-top:12px;">Confirm</button>
+        <button type="button" class="secondary" id="confirm_no">Go back</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="upload_overlay">
+      <div class="spinner-card">
+        <strong>Uploading resume...</strong>
+        <p class="note">This takes about 5 seconds so the agent can use wait_5_seconds.</p>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("job-form");
+      const success = document.getElementById("success");
+      const resumeInput = document.getElementById("resume");
+      const resumeNote = document.getElementById("resume_note");
+      const dropZone = document.getElementById("drop_zone");
+      const resumeToken = document.getElementById("resume_token");
+      const uploadOverlay = document.getElementById("upload_overlay");
+      const uploadStatus = document.getElementById("upload_status");
+      const confirmModal = document.getElementById("confirm_modal");
+      const positionInput = document.getElementById("position");
+      const countryToggle = document.getElementById("country_toggle");
+      const countryDropdown = document.getElementById("country_dropdown");
+      const countryInput = document.getElementById("country");
+      const visaFields = document.getElementById("visa_fields");
+      const authHelp = document.getElementById("auth_help");
+      const authTooltip = document.getElementById("auth_tooltip");
+      const skillsInput = document.getElementById("skills");
+      const selectedSkills = new Set();
+      let droppedResumeName = "";
+
+      function escapeText(value) {
+        const div = document.createElement("div");
+        div.textContent = value == null ? "" : String(value);
+        return div.innerHTML;
+      }
+
+      function showError(id, on) {
+        const field = document.getElementById(id);
+        const err = document.getElementById("err_" + id);
+        if (field) field.classList.toggle("invalid", on);
+        if (err) err.style.display = on ? "block" : "none";
+      }
+
+      function validEmail(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      }
+
+      function coreValid() {
+        const name = document.getElementById("full_name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const position = positionInput.value.trim();
+        const consent = document.getElementById("consent").checked;
+        showError("full_name", !name);
+        showError("email", !validEmail(email));
+        showError("phone", !phone);
+        const posErr = document.getElementById("err_position");
+        posErr.style.display = position ? "none" : "block";
+        showError("consent", !consent);
+        return Boolean(name && validEmail(email) && phone && position && consent);
+      }
+
+      function setResumeNote(name) {
+        resumeNote.textContent = name ? "Selected: " + name : "No file selected.";
+      }
+
+      function simulateUpload(name) {
+        droppedResumeName = name;
+        setResumeNote(name);
+        uploadStatus.textContent = "Uploading...";
+        uploadOverlay.classList.add("show");
+        window.setTimeout(() => {
+          uploadOverlay.classList.remove("show");
+          uploadStatus.textContent = "Resume ready.";
+        }, 5000);
+      }
+
+      document.querySelectorAll("#position_cards .choice").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#position_cards .choice").forEach((b) => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          positionInput.value = btn.getAttribute("data-position");
+          document.getElementById("err_position").style.display = "none";
+        });
+      });
+
+      document.querySelectorAll("#skill_chips .chip").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const skill = btn.getAttribute("data-skill");
+          if (selectedSkills.has(skill)) {
+            selectedSkills.delete(skill);
+            btn.classList.remove("selected");
+          } else {
+            selectedSkills.add(skill);
+            btn.classList.add("selected");
+          }
+          skillsInput.value = Array.from(selectedSkills).join(", ");
+        });
+      });
+
+      countryToggle.addEventListener("click", () => {
+        countryDropdown.classList.toggle("open");
+      });
+      document.querySelectorAll("#country_menu li").forEach((item) => {
+        item.addEventListener("click", () => {
+          countryInput.value = item.getAttribute("data-value");
+          countryToggle.textContent = item.getAttribute("data-value");
+          countryDropdown.classList.remove("open");
+        });
+      });
+      document.addEventListener("click", (event) => {
+        if (!countryDropdown.contains(event.target)) countryDropdown.classList.remove("open");
+      });
+
+      document.querySelectorAll('input[name="authorized"]').forEach((radio) => {
+        radio.addEventListener("change", () => {
+          visaFields.style.display = radio.value === "No" && radio.checked ? "block" : "none";
+        });
+      });
+
+      authHelp.addEventListener("mouseenter", () => { authTooltip.style.display = "block"; });
+      authHelp.addEventListener("mouseleave", () => { authTooltip.style.display = "none"; });
+
+      resumeInput.addEventListener("change", () => {
+        const file = resumeInput.files && resumeInput.files[0];
+        if (file) simulateUpload(file.name);
+        else setResumeNote("");
+      });
+      dropZone.addEventListener("click", () => resumeInput.click());
+      dropZone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropZone.classList.add("dragover");
+      });
+      dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+      dropZone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        dropZone.classList.remove("dragover");
+        const files = event.dataTransfer && event.dataTransfer.files;
+        if (files && files[0]) {
+          resumeInput.files = files;
+          simulateUpload(files[0].name);
+          return;
+        }
+        const token = event.dataTransfer && event.dataTransfer.getData("text/plain");
+        if (token === "sample_resume.pdf") simulateUpload("sample_resume.pdf");
+      });
+      resumeToken.addEventListener("dragstart", (event) => {
+        event.dataTransfer.setData("text/plain", "sample_resume.pdf");
+      });
+
+      function fillSuccess() {
+        const data = new FormData(form);
+        const resumeName = (resumeInput.files[0] && resumeInput.files[0].name) || droppedResumeName || "(no file)";
+        const rows = [
+          ["Name", data.get("full_name") || "(missing name)"],
+          ["Email", data.get("email") || "(missing email)"],
+          ["Phone", data.get("phone") || "(missing phone)"],
+          ["Position", data.get("position") || "(missing position)"],
+          ["Resume", resumeName],
+          ["Consent", data.get("consent") ? "Yes" : "No"],
+          ["Cover Letter", data.get("cover_letter") || "(missing cover letter)"],
+          ["Date of birth", data.get("dob") || "(not provided)"],
+          ["Country", data.get("country") || "(not provided)"],
+          ["Work type", data.get("work_type") || "(not provided)"],
+          ["Authorized", data.get("authorized") || "(not provided)"],
+          ["Visa type", data.get("visa_type") || "(not provided)"],
+          ["Visa expiry", data.get("visa_expiry") || "(not provided)"],
+          ["Experience", data.get("experience_years") || "(not provided)"],
+          ["Skills", data.get("skills") || "(not provided)"],
+          ["LinkedIn", data.get("linkedin") || "(not provided)"],
+        ];
+        success.innerHTML = "<strong>Submitted!</strong>";
+        rows.forEach(([label, value]) => {
+          const row = document.createElement("div");
+          row.innerHTML = escapeText(label) + ": " + escapeText(value);
+          success.appendChild(row);
+        });
+        success.style.display = "block";
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!coreValid()) {
+          success.style.display = "none";
+          return;
+        }
+        confirmModal.classList.add("show");
+      });
+      document.getElementById("confirm_yes").addEventListener("click", () => {
+        confirmModal.classList.remove("show");
+        fillSuccess();
+      });
+      document.getElementById("confirm_no").addEventListener("click", () => {
+        confirmModal.classList.remove("show");
+      });
+    </script>
+  </body>
+</html>
