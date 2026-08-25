@@ -20,6 +20,7 @@ from computer_agent import (  # noqa: E402
     select_all_shortcut,
 )
 from job_form import parse_args  # noqa: E402
+from app import goal_from_args  # noqa: E402
 
 
 class ComputerAgentTests(unittest.TestCase):
@@ -94,6 +95,19 @@ class ComputerAgentTests(unittest.TestCase):
         )
         self.assertEqual(proc.returncode, 1)
         self.assertIn("Usage: python agent.py", proc.stdout)
+        self.assertIn("No default goal", proc.stdout)
+        self.assertNotIn("Software Engineer", proc.stdout)
+
+    def test_agent_rejects_blank_goal(self) -> None:
+        proc = subprocess.run(
+            [sys.executable, str(ROOT / "agent.py"), "   "],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("No default goal", proc.stdout)
 
     def test_executor_handles_every_supported_action(self) -> None:
         page = MagicMock()
@@ -147,6 +161,15 @@ class ComputerAgentTests(unittest.TestCase):
         full, goal = parse_args(["job_form.py", "--full", "Custom goal"])
         self.assertTrue(full)
         self.assertEqual(goal, "Custom goal")
+
+    def test_app_goal_follows_user_search(self) -> None:
+        self.assertIn("Software Engineer Intern Remote India", goal_from_args(["app.py"]))
+        self.assertIn("Product Manager Berlin", goal_from_args(["app.py", "Product Manager Berlin"]))
+        self.assertNotIn("Software Engineer Intern Remote India", goal_from_args(["app.py", "Data Scientist"]))
+        self.assertEqual(
+            goal_from_args(["app.py", "--goal", "Open saved jobs and apply to the first one"]),
+            "Open saved jobs and apply to the first one",
+        )
 
 
 if __name__ == "__main__":
