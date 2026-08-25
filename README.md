@@ -13,8 +13,8 @@ This project was built when **Gemini 2.5 Computer Use** had just launched. At th
 | File | Purpose |
 |------|---------|
 | `computer_agent.py` | Shared 2.5 Computer Use helper (actions, screenshots, turn loop). |
-| `app.py` | Job portal autopilot (preset goal to search/apply). |
-| `agent.py` | General free-form goal agent (you supply any browsing objective). |
+| `app.py` | LinkedIn job search. Your query, or intern search only if you pass no args. |
+| `agent.py` | Free-form browser agent. You must pass a goal; there is no default. |
 | `job_form.py` | Local job application form filler + automatic resume upload. |
 | `job_application.html` | Simple original form (name, email, phone, position, cover, resume, consent). |
 | `job_application_full.html` | Fuller demo form (hover, scroll, visa fields, drag-and-drop, confirm modal). |
@@ -42,8 +42,11 @@ echo "YOUR_GEMINI_API_KEY" > gemini_api_key
 ## Running Each Demo
 
 ### 1. Free-form browsing agent
+There is **no default task**. If you pass nothing, it prints usage and exits. The agent only does the goal you type.
+
 ```zsh
 python3 agent.py "Find Wikipedia article about Niagara Falls and open History section"
+python3 agent.py "Open Google News and summarize the top headline"
 ```
 
 ### 2. Local form filling (with resume)
@@ -64,10 +67,25 @@ python3 job_form.py --full "Fill every section, attach the resume, confirm the m
 After submission the page shows a green summary box; no data leaves your machine.
 
 ### 3. Job portal autopilot
+Needs a logged-in LinkedIn session in the launched browser. Demo only, not a production applicant bot.
+
+No extra text → original intern search:
 ```zsh
 python3 app.py
 ```
-This needs a logged-in LinkedIn session in the launched browser. It is a demo, not a production applicant bot. Edit inside `app.py` if you want to change `USER_GOAL`, `MAX_APPLICATIONS`, or `JOB_PORTAL`.
+
+Your search instead:
+```zsh
+python3 app.py "Product Manager Remote India"
+python3 app.py "Data Scientist Bengaluru"
+```
+
+Your full instruction:
+```zsh
+python3 app.py --goal "Open LinkedIn jobs, filter Easy Apply, and apply to 2 Designer roles in London"
+```
+
+Edit `MAX_APPLICATIONS` or `JOB_PORTAL` in `app.py` if you want to change the defaults.
 
 ## How It Works (All Scripts)
 1. Take a screenshot of the current browser state.

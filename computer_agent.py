@@ -9,6 +9,7 @@ from typing import Any, Dict, Iterator, List, Tuple
 
 from google import genai
 from google.genai import types
+from google.genai.errors import ClientError
 from google.genai.types import Content, Part
 from playwright.sync_api import Page, sync_playwright
 from termcolor import cprint
@@ -234,11 +235,23 @@ def run_turns(
     config = computer_use_config()
     for turn in range(turn_limit):
         print(f"\n----- TURN {turn + 1} -----")
-        resp = client.models.generate_content(
-            model=MODEL,
-            contents=contents,
-            config=config,
-        )
+        try:
+            resp = client.models.generate_content(
+                model=MODEL,
+                contents=contents,
+                config=config,
+            )
+        except ClientError as exc:
+            message = str(exc)
+            if "API_KEY_INVALID" in message or "API key not valid" in message:
+                print(
+                    "Gemini rejected the API key (API_KEY_INVALID). "
+                    "Put a valid key in the gemini_api_key file, or set GEMINI_API_KEY. "
+                    "Get a key at https://aistudio.google.com/apikey"
+                )
+                return
+            print(f"Gemini API error: {exc}")
+            return
         candidates = getattr(resp, "candidates", None) or []
         if not candidates:
             print("No candidates returned. Stopping.")
